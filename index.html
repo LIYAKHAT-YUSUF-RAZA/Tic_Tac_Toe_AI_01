@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .two-player-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .two-player-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .computer-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .computer-btn:hover {
+            background-color: #1976D2;
+            transform: scale(1.05);
+        }
+
+        .game-title {
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .welcome-text {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to <span class="game-title">Tic Tac Toe</span></h1>
+        <p class="welcome-text">Choose your game mode to start playing!</p>
+        <div class="button-group">
+            <button onclick="window.location.href='tic_tac_toe_ai_01.html'" class="two-player-btn">
+                👥 2 Player Mode
+            </button>
+            <button onclick="window.location.href='tic_tac_toe_ai_01_c.html'" class="computer-btn">
+                🖥️ Play with Computer
+            </button>
+        </div>
+    </div>
+</body>
+</html>
