@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Player Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+            background-color: transparent;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 2.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .cell:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .cell.x { color: #2196F3; }
+        .cell.o { color: #F44336; }
+
+        .status {
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .scores {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: 0px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+
+        .celebration.active {
+            display: block;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100%) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .winner-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+            animation: popup 0.5s ease-out;
+        }
+
+        .winner-popup.active {
+            display: block;
+        }
+
+        @keyframes popup {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            70% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #45a049;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .computer-btn {
+            background-color: #2196F3 !important;
+            border-color: #1976D2 !important;
+        }
+
+        .computer-btn:hover {
+            background-color: #1976D2 !important;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .input-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #2196F3;
+        }
+
+        .start-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-btn:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div id="nameModal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to Tic Tac Toe!</h2>
+            <div class="input-group">
+                <label for="playerX">Player X Name:</label>
+                <input type="text" id="playerX" placeholder="Enter Player X name" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label for="playerO">Player O Name:</label>
+                <input type="text" id="playerO" placeholder="Enter Player O name" maxlength="20">
+            </div>
+            <button onclick="startGame()" class="start-btn">Start Game</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <div class="status" id="status">Player X's turn</div>
+        <div class="board" id="board">
+            <button class="cell" data-index="0"></button>
+            <button class="cell" data-index="1"></button>
+            <button class="cell" data-index="2"></button>
+            <button class="cell" data-index="3"></button>
+            <button class="cell" data-index="4"></button>
+            <button class="cell" data-index="5"></button>
+            <button class="cell" data-index="6"></button>
+            <button class="cell" data-index="7"></button>
+            <button class="cell" data-index="8"></button>
+        </div>
+        <div class="scores">
+            <div>Player X: <span id="scoreX">0</span></div>
+            <div>Player O: <span id="scoreO">0</span></div>
+        </div>
+        <div class="button-group" style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+            <button onclick="resetGame()">Reset Game</button>
+            <button onclick="window.location.href='tic_tac_toe_ai_01_c.html'" class="computer-btn">
+                🖥️ Play with Computer
+            </button>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+    <div class="winner-popup" id="winnerPopup">
+        <h2>🎉 Congratulations! </h2>
+        <p id="winnerText" style="font-size: 24px; margin: 20px 0;"></p>
+    </div>
+
+    <script>
+        let playerXName = sessionStorage.getItem('playerXName');
+        let playerOName = sessionStorage.getItem('playerOName');
+        let currentPlayer = 'X';
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let scores = { X: 0, O: 0 };
+
+        // Check if names are already stored
+        if (playerXName && playerOName) {
+            document.getElementById('nameModal').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+            initializeGame();
+        } else {
+            document.getElementById('nameModal').style.display = 'flex';
+            document.querySelector('.container').style.display = 'none';
+        }
+
+        function startGame() {
+            const playerXInput = document.getElementById('playerX');
+            const playerOInput = document.getElementById('playerO');
+            
+            playerXName = playerXInput.value.trim() || "Player X";
+            playerOName = playerOInput.value.trim() || "Player O";
+            
+            // Store names in session storage
+            sessionStorage.setItem('playerXName', playerXName);
+            sessionStorage.setItem('playerOName', playerOName);
+            
+            // Hide modal and show game
+            document.getElementById('nameModal').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+            
+            initializeGame();
+        }
+
+        function initializeGame() {
+            document.querySelector('h1').textContent = `${playerXName} vs ${playerOName}`;
+            updateStatus();
+            document.querySelector('.scores').innerHTML = `
+                <div>${playerXName} (X): <span id="scoreX">0</span></div>
+                <div>${playerOName} (O): <span id="scoreO">0</span></div>
+            `;
+        }
+
+        function updateStatus() {
+            document.getElementById('status').textContent = 
+                `${currentPlayer === 'X' ? playerXName : playerOName}'s turn (${currentPlayer})`;
+        }
+
+        function handleCellClick(cell) {
+            const index = cell.getAttribute('data-index');
+            if (gameBoard[index] !== '' || !gameActive) return;
+
+            gameBoard[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
+
+            if (checkWin()) {
+                const winner = currentPlayer === 'X' ? playerXName : playerOName;
+                document.getElementById('status').textContent = `${winner} wins!`;
+                scores[currentPlayer]++;
+                updateScores();
+                gameActive = false;
+                createConfetti();
+                return;
+            }
+
+            if (checkDraw()) {
+                document.getElementById('status').textContent = "It's a draw!";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateStatus();
+        }
+
+        // Add Enter key support for the name inputs
+        document.getElementById('playerX').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('playerO').focus();
+            }
+        });
+
+        document.getElementById('playerO').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', () => handleCellClick(cell));
+        });
+
+        function createConfetti() {
+            const celebration = document.getElementById('celebration');
+            const winnerPopup = document.getElementById('winnerPopup');
+            celebration.innerHTML = '';
+            celebration.classList.add('active');
+            winnerPopup.classList.add('active');
+
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                celebration.appendChild(confetti);
+            }
+
+            // Update winner text to show player name
+            const winnerName = currentPlayer === 'X' ? playerXName : playerOName;
+            document.getElementById('winnerText').textContent = `${winnerName} Wins!`;
+
+            setTimeout(() => {
+                celebration.classList.remove('active');
+                winnerPopup.classList.remove('active');
+            }, 3000);
+        }
+
+        function checkWin() {
+            return winningCombinations.some(combination => {
+                return combination.every(index => {
+                    return gameBoard[index] === currentPlayer;
+                });
+            });
+        }
+
+        function checkDraw() {
+            return gameBoard.every(cell => cell !== '');
+        }
+
+        function updateScores() {
+            document.getElementById('scoreX').textContent = scores.X;
+            document.getElementById('scoreO').textContent = scores.O;
+        }
+
+        function resetGame() {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+            });
+            document.getElementById('status').textContent = "Player X's turn";
+            
+            const celebration = document.getElementById('celebration');
+            const winnerPopup = document.getElementById('winnerPopup');
+            celebration.classList.remove('active');
+            winnerPopup.classList.remove('active');
+        }
+    </script>
+</body>
+</html>
